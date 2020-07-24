@@ -1,15 +1,14 @@
-package fr.diginamic.jdbc.entites;
+package exemple.jdbc.entity;
 
-/**
- * @author antoinethebault
- *Fournisseur : represente un fournisseur avec son id unique et son nom
- */
 public class Fournisseur {
+	
 	/**id : int*/
-	private int id;
+	private Integer id;
+
 	/**nom : String*/
 	private String nom;
-	
+
+
 	/**Constructor
 	 * @param id
 	 * @param nom
@@ -20,11 +19,12 @@ public class Fournisseur {
 		this.nom = nom;
 	}
 
-	/**Getter
-	 * @return the id
-	 */
-	public int getId() {
+	public Integer getId() {
 		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	/**Getter
@@ -34,12 +34,6 @@ public class Fournisseur {
 		return nom;
 	}
 
-	/**Setter
-	 * @param id the id to set
-	 */
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	/**Setter
 	 * @param nom the nom to set
@@ -52,4 +46,5 @@ public class Fournisseur {
 	public String toString() {
 		return this.id+" "+this.nom;
 	}
+
 }

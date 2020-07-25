@@ -9,49 +9,51 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import exemple.jdbc.entity.Article;
 import exemple.jdbc.entity.Fournisseur;
-import fr.diginamic.jdbc.exception.ComptaException;
 
-public class FournisseurDaoJdbc implements FournisseurDao {
+public class ArticleDaoJdbc implements ArticleDao {
 	
 	public static void main(String[] a) {
-		FournisseurDaoJdbc ofo = new FournisseurDaoJdbc();
-		List<Fournisseur> listeFour = ofo.extraire();
-		for(Fournisseur fo : listeFour) {
-			System.out.println(fo);
+		ArticleDaoJdbc art = new ArticleDaoJdbc();
+		List<Article> listeArticle = art.extraire();
+		for(Article ar : listeArticle) {
+			System.out.println(ar);
 		}
-		// ofo.insert(new Fournisseur(9, "Lessieurs"));
-		ofo.update("Lessieurs", "Leclerc");
-		listeFour = ofo.extraire();
-		for(Fournisseur fo : listeFour) {
-			System.out.println(fo);
+		System.out.println("--------------");
+		
+		// art.insert(new Article(11, "B12", "Tournevis", 5.55, 2));
+		art.update("Tournevis", "Marteau");
+		listeArticle = art.extraire();
+		for(Article ar : listeArticle) {
+			System.out.println(ar);
 		}
-		ofo.delete(new Fournisseur(9, "Leclerc"));
-		System.out.println("Fournisseur supprimé !");
-		listeFour = ofo.extraire();
-		for(Fournisseur fo : listeFour) {
-			System.out.println(fo);
+		System.out.println("--------------");
+		art.delete(new Article(11, "B12", "Marteau", 5.55, 2));
+		listeArticle = art.extraire();
+		for(Article ar : listeArticle) {
+			System.out.println(ar);
 		}
+				
 	}
 	
-
 	@Override
-	public List<Fournisseur> extraire() {
+	public List<Article> extraire() {
 		Connection connection = null;
-		List<Fournisseur> listeFour = new ArrayList<Fournisseur>();
+		List<Article> listeArticle = new ArrayList<Article>();
 		try {
 			connection = getConnection(); // jeton de permission et d'accès à la base
-			/** Récupérer un statement = accès aux données à partir de l'objet connection
-			 * Récupérer le Resultat de la requête
-			 * Ajouter ligne par ligne dans la liste des Fournisseurs
-			 */
 			
 			// récupérer un buffer d'échange avec la BDD (un tuyau de communication)
 			Statement monCanal = connection.createStatement();
-			ResultSet monResultat = monCanal.executeQuery("select * from fournisseur;");
+			ResultSet monResultat = monCanal.executeQuery("select * from article;");
 			
 			while(monResultat.next()) {
-				listeFour.add(new Fournisseur(monResultat.getInt("id"), monResultat.getString("nom")));
+				listeArticle.add(new Article(monResultat.getInt("id"), 
+						monResultat.getString("ref"), 
+						monResultat.getString("designation"),
+						monResultat.getDouble("prix"),
+						monResultat.getInt("id_fou")));
 			}
 			monResultat.close();
 			monCanal.close();
@@ -65,21 +67,26 @@ public class FournisseurDaoJdbc implements FournisseurDao {
 				System.err.println("Problème de connection :" + e.getMessage());
 			}		
 		}
-		return listeFour;
+		return listeArticle;
 	}
 
-	
-	/** fait un insert dans la base de compta sur la table fournisseur*/
+
+
 	@Override
-	public void insert(Fournisseur fournisseur) {
+	public void insert(Article article) {
 		Connection connection = null;
 		try {
 			connection = getConnection();
 			Statement monCanal = connection.createStatement();
-			int nb = monCanal.executeUpdate("insert into fournisseur (id, nom) values(" + fournisseur.getId() + ",'"
-					+ fournisseur.getNom() + "');");
+			int nb = monCanal.executeUpdate("insert into article (id, ref, designation, prix, id_fou) values(" 
+					+ article.getId() + ",'"
+					+ article.getRef() + "' , '"
+					+ article.getDesignation() + "' , "
+					+ article.getPrix() + ", "
+					+ article.getId_fou() + ")"
+					);
 			if(nb == 1) {
-				System.out.println("Fournisseur ajouté !");
+				System.out.println("Article ajouté !");
 			}
 			monCanal.close();
 			
@@ -95,17 +102,16 @@ public class FournisseurDaoJdbc implements FournisseurDao {
 
 	}
 
-	/** fait un update dans la table fournisseur en changeant le nom ancienNom par nouveauNom*/
 	@Override
-	public int update(String ancienNom, String nouveauNom) {
+	public int update(String ancienDesignation, String nouveauDesignation) {
 		Connection connection = null;
 		int nb = 0;
 		try {
 			connection = getConnection();
 			Statement monCanal = connection.createStatement();
-			nb = monCanal.executeUpdate("update fournisseur SET nom = '" 
-										+ nouveauNom+ "'where nom ='" 
-										+ancienNom+"';");
+			nb = monCanal.executeUpdate("update article SET designation = '" 
+										+ nouveauDesignation+ "'where designation ='" 
+										+ ancienDesignation+"';");
 
 			monCanal.close();
 			
@@ -120,16 +126,15 @@ public class FournisseurDaoJdbc implements FournisseurDao {
 		}
 		return nb;
 	}
-	
-	/** supprime le fournisseur specifie dans la table fournisseur */
+
 	@Override
-	public boolean delete(Fournisseur fournisseur) {
+	public boolean delete(Article article) {
 		Connection connection = null;
 		boolean nb = false;
 		try {
 			connection = getConnection();
 			Statement monCanal = connection.createStatement();
-			if(monCanal.executeUpdate("delete from fournisseur where id = " + fournisseur.getId()+ ";")
+			if(monCanal.executeUpdate("delete from article where id = " + article.getId()+ ";")
 					==1) {
 				nb = true;
 			}
@@ -146,6 +151,7 @@ public class FournisseurDaoJdbc implements FournisseurDao {
 		}
 		return nb;
 	}
+
 	
 	public Connection getConnection() {
 		// recupere le fichier properties
